@@ -1,7 +1,9 @@
 Push-Location $PSScriptRoot
 . ..\Src\ConvertFrom-JsonEditable.ps1
 
-Set-Content -Path "users.json" -Value @"
+$csvFile = "$PSScriptRoot\users.json"
+
+Set-Content -Path $csvFile -Value @"
 [
     {
         "id":"00001",
@@ -20,13 +22,15 @@ Set-Content -Path "users.json" -Value @"
 ]
 "@
 
-$users = Get-Content -Path "users.json" | ConvertFrom-JsonEditable
+$users = Get-Content -Path $csvFile -Encoding UTF8 | ConvertFrom-JsonEditable
 
 $user = $users | Where-Object { $_.name -eq "Baki Hanma" }
 $user.otherInfo.height = 168
 
-$users | ConvertTo-Json -Depth $users.GetDepth() | Set-Content "users.json"
+$json = $users | ConvertTo-Json -Depth $users.GetDepth()
 
-Get-Content -Path "users.json"
+[System.IO.File]::WriteAllText($csvFile,$json,[System.Text.UTF8Encoding]::new($false))
+
+Get-Content -Path $csvFile -Encoding UTF8 | Write-Host 
 
 Pop-Location
